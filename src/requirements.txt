@@ -1,0 +1,7 @@
+azure-storage-blob==12.25.1
+fastapi==0.115.12
+pandas==2.2.3
+pandas-datareader==0.10.0
+python-dotenv==1.1.0
+uvicorn==0.30.6
+yfinance==0.2.58

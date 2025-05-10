@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: financial-data-service-deployment
+  namespace: financial-data-source
+  labels:
+    app: financial-data-service
+spec:
+  replicas: 1  # Single instance
+  selector:
+    matchLabels:
+      app: financial-data-service
+  template:
+    metadata:
+      labels:
+        app: financial-data-service
+    spec:
+      containers:
+      - name: financial-data-service-container
+        image: magiccpp1/financial-data-source:v0.1  # Replace with your image and tag
+        ports:
+        - containerPort: 8000  # Port your FastAPI app listens on
+          name: http
+        env:
+        - name: AZURE_STORAGE_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              name: azure-storage-secrets  # Name of the secret
+              key: connectionString
+        - name: AZURE_CONTAINER_NAME
+          value: data # Replace with your container name
+        # Optional: Resource requests and limits
+        resources:
+          requests:
+            cpu: 100m
+            memory: 512Mi
+          limits:
+            cpu: 500m
+            memory: 2048Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: financial-data-service-service
+  namespace: financial-data-source
+spec:
+  selector:
+    app: financial-data-service
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000  # The port the container listens on
+      name: http
+      nodePort: 31000  # Explicitly specify the NodePort (example)
+  type: NodePort
